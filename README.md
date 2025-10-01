@@ -3,14 +3,19 @@
 This repo contains two experimental Jupyter notebooks exploring **auto-difficulty control** and **board mechanics** for a word-puzzle game inspired by *Wordscapes* and *Solitaire*.
 
 ---
+Both notebooks implements a **playable game prototype** with:
+- A **multi-layer depth board** (tiles block lower tiles until cleared).
+- A **deck system** for drawing extra letters
+- A bot programmed to always pick the longest word makable using the board + last drawn deck card(s)
+- A Player stats tracking panel to display average word length and score, well as how many new words become available as a new card tile is flipped / revealed (we call this metric Δ)
+- Some plots of epsilon, the dynamic difficulty tuning parameter, and it's relationship to the metric Δ.
 
-## Notebook 1: Epsilon as a Sine-Wave Difficulty Driver
+## Notebook 1: Epsilon as a stand alone Difficulty Driver
 
-This notebook demonstrates a **theoretical model** where difficulty is driven by a smooth, periodic function of the number of **tile reveals**.
+This notebook demonstrates a **theoretical model** where difficulty is driven by a smoothly oscillating parameter, epsilon, and how it's value affects how many new words become available on card tile flips.
 
 - **Core idea:** difficulty is a sinusoidal signal over time.
 - **Epsilon (ε)** is clamped to `[0, 0.5]` and changes only when **new board tiles are revealed**.
-- **Deck flips** consume waste cards but do not advance ε.
 - Plots show:
   - ε over time (with win/loss markers).
   - Δ (net options added) over time, smoothed with rolling averages.
@@ -31,6 +36,11 @@ $$
 \right)
 $$
 
+This leaves room for epsilon to be updated by other in-game events and logic.  
+Some rough ideas for events that would trigger an epsilon adjustment.  We can also add decay parameters, and other functions that alter epsilon.
+- Player makes an in app purchase, lower their epsilon by 10% for 24 hours (to subtly reward in-app purchase)
+- Player uses several power-ups to beat a level, lower their epsilon by 10% for 5 games (to prevent churn from frustration)
+- Player performance is very high or low, or player goes on a win streak or loss streak (See implementation of this idea in notebook 2!)
 ### Visuals
 
 👉 *Drag and drop screenshots of the epsilon chart and delta trends here.*
@@ -40,10 +50,6 @@ $$
 
 ## Notebook 2: Depth Board + Deck + Adaptive Epsilon
 
-This notebook implements a **playable game prototype** with:
-
-- A **multi-layer depth board** (tiles block lower tiles until cleared).
-- A **deck/waste system** for drawing extra letters.
 - **Epsilon (ε)** as an **adaptive difficulty signal** in `[0,1]`.
 - Automatic switching between **Easy / Normal / Hard modes** based on ε with **hysteresis**.
 
