@@ -94,13 +94,36 @@ https://github.com/user-attachments/assets/17f6c862-d18f-4142-8fb9-66441569a8db
 ### Logic for puzzle creation:
 Each tile has a connectivity to other tiles on the board.  For example, those in the first row are 100% connected, as they are guaranteed to be revealed at the same time and can be played together.  Tiles in the second row are not guaranteed to all be revealed at the same time, but are still more likely to be available together compared to tiles in the 4th row for instance.  We create a connectivity coefficient (pointwise mutual information (PMI)) for each tile and the other tiles on the board.  Then we randomly select tiles, row by row, and populate a letter that generates the desired possibility of valid words being created.  When difficulty is high, we want to populate less word possibilities between highly connected letters, and the inverse when difficulty is low.  This process should lead to puzzles on the difficulty range (0,1).
 
+**PuzzleGenerator** takes a board config, calculates the tile connectivity, and takes the flat input difficulty to fill in the letters on all tiles in the game.  No dynamic assignment of letters when flipping board tiles
+**Deck**  However, we also created some modes for dynamic letter assignment when flipping deck cards:  
+- Guarantee Build Mode: Guarantees to either create a word from the board + deck, or to extend the length of the current word in the word builder space.  
+- Normal: Random letter reveal
+- Gaurantee Junk Mode: Guarantees to randomly reveal a letter from a list of letters that do NOT help with the current word / board.  Useful for incentivizing player to use power-ups and in-app purchases.
+
+### With this combination of preloaded boards + riggable deck, we should be able to create experiences that are somewhat frustrating, challenging, and greatly rewarding when timed properly.
+**Notes on Difficulty Assignment**  
+In-game events and the players' skill level determine the level of difficulty of premade puzzle to serve the player.  
+Contributors include:
+- Win streak / loss streak
+- Average word length
+- ...
+
+**Notes on Rigged Deck Mode Triggering**
+In-game events that could trigger toggling Build Mode vs Junk Mode:
+- Player is about to win and needs 1 more good deck card to clear the board: toggle junk mode until they are forced to spend 150 coins to draw 5 more cards, then toggle Normal or Build Mode
+- Player is on a 4 game loss streak: toggle a decaying 100% chance to use build mode when flipping a deck card.  Have this decay over time, and use normal mode when not triggered.
+- ...
+
+**TBD:** Show a simulation of a bot solving puzzles on the difficulty range 0 to 1, and show that with a basic strategy, the win/loss rate is higher as difficulty increases.  
+**TBD:** Show that, in instances where no words can currently be made from the board, build mode can force the game to be progressable, and junk mode can force it to be stuck.
+
 ## Letter Reveal Delta Demo
 ### Logic for simulation and stats
-**Candidate** letter is an extra DECK tile (not forced into prefix).
-**Score** = Δ_used, where Δ_used = (AFTER bank-used) - (BEFORE bank-used).
-**AFTER bank-used** does NOT include the deck letter usage.
-**Preview** shows BEFORE (green bank) and AFTER (green bank, red deck if actually needed).
-**Difficulty** is used to select which letter in the sorted list to serve as the next leter reveal.  0 would select the first, best letter, .5 would select the 13th, etc.
+- **Candidate** letter is an extra DECK tile (not forced into prefix).
+- **Score** = Δ_used, where Δ_used = (AFTER bank-used) - (BEFORE bank-used).
+- **AFTER bank-used** does NOT include the deck letter usage.
+- **Preview** shows BEFORE (green bank) and AFTER (green bank, red deck if actually needed).
+- **Difficulty** is used to select which letter in the sorted list to serve as the next leter reveal.  0 would select the first, best letter, .5 would select the 13th, etc.
 
 
 ### Visuals
